@@ -15,11 +15,13 @@ import androidx.navigation.fragment.findNavController
 import com.yosua.yourstory.R
 import com.yosua.yourstory.databinding.FragmentAddStoryBinding
 import com.yosua.yourstory.utils.Result
+import com.yosua.yourstory.utils.Util.reduceFileImage
 import com.yosua.yourstory.utils.Util.uriToFile
 import dagger.hilt.android.AndroidEntryPoint
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
@@ -53,17 +55,9 @@ class AddStoryFragment : Fragment() {
         }
     }
 
-    private fun postStory() {
-        val description =
-            binding.inputDescription.text.toString().toRequestBody("text/plain".toMediaType())
-
-        val file = getFile as File
-
-        val imagePost = file.asRequestBody("image/*".toMediaTypeOrNull())
-        val imageMultiPart = MultipartBody.Part.createFormData("image", file.name, imagePost)
-
+    private fun makePost(image: MultipartBody.Part?, description: RequestBody) {
         addStoryViewModel.createStory(
-            image = imageMultiPart,
+            image = image,
             description = description
         ).observe(viewLifecycleOwner) {
             when (it) {
@@ -84,7 +78,23 @@ class AddStoryFragment : Fragment() {
                 }
             }
         }
+    }
 
+    private fun postStory() {
+        val description =
+            binding.inputDescription.text.toString().toRequestBody("text/plain".toMediaType())
+
+        val file = getFile
+
+        if (file != null) {
+            val reducedFileImage = reduceFileImage(file)
+            val imagePost = reducedFileImage.asRequestBody("image/*".toMediaTypeOrNull())
+            val imageMultiPart = MultipartBody.Part.createFormData("image", reducedFileImage.name, imagePost)
+
+            makePost(imageMultiPart, description)
+        } else {
+            makePost(null, description)
+        }
     }
 
     private fun launchGallery() {

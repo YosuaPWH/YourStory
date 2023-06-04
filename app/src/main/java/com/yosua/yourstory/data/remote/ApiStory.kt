@@ -1,5 +1,6 @@
 package com.yosua.yourstory.data.remote
 
+import com.yosua.yourstory.data.remote.response.AllStoriesResponse
 import com.yosua.yourstory.data.remote.response.StoryResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -18,7 +19,13 @@ interface ApiStory {
     @POST("story-create/{id}")
     suspend fun createStory(
         @Path("id") id: Int,
+        @Part("name") name: String,
         @Part image: MultipartBody.Part? = null,
         @Part("description") description: RequestBody? = null
     ) : Response<StoryResponse>
+
+    @POST("all-stories")
+    suspend fun allStories() : Response<AllStoriesResponse>
+
+
 }

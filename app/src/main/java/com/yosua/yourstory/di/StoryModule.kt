@@ -27,7 +27,7 @@ object StoryModule {
     @Singleton
     fun provideApiStoryInstance(loggingInterceptor: HttpLoggingInterceptor) : ApiStory =
         Retrofit.Builder()
-            .baseUrl(Constants.STORY_URL)
+            .baseUrl(Constants.STORY_URL + "api/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()

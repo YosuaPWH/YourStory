@@ -6,6 +6,7 @@ package com.yosua.yourstory.domain.model
 data class Story(
     val id: Int,
     val id_user: Int,
+    val name: String,
     val image: String? = null,
     val description: String? = null,
     val created_at: String? = null,

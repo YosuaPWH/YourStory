@@ -59,4 +59,8 @@ class AuthRepositoryImpl(private val api: ApiAuth, private val dataStore: UserDa
             emit(Result.Error(e.message ?: "Terjadi Kesalahan"))
         }
     }
+
+    override fun getName(id: Int): String {
+        TODO("Not yet implemented")
+    }
 }

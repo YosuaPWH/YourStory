@@ -14,6 +14,6 @@ import javax.inject.Inject
 @HiltViewModel
 class AddStoryViewModel @Inject constructor(private val repo: StoryRepository) : ViewModel() {
 
-    fun createStory(image: MultipartBody.Part, description: RequestBody) =
+    fun createStory(image: MultipartBody.Part?, description: RequestBody) =
         repo.createStory(image, description).asLiveData()
 }

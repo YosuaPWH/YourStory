@@ -3,6 +3,7 @@ package com.yosua.yourstory.data.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.yosua.yourstory.data.remote.ApiStory
+import com.yosua.yourstory.data.remote.response.AllStoriesResponse
 import com.yosua.yourstory.data.remote.response.ErrorResponse
 import com.yosua.yourstory.data.remote.response.StoryResponse
 import com.yosua.yourstory.domain.model.Story
@@ -23,14 +24,14 @@ class StoryRepositoryImpl(
 ) : StoryRepository {
 
     override fun createStory(
-        fileImage: MultipartBody.Part,
+        fileImage: MultipartBody.Part?,
         description: RequestBody
     ): Flow<Result<String>> = flow {
         emit(Result.Loading)
         try {
             dataStore.getDataUser().collect {
                 if (it != null) {
-                    api.createStory(it.id, fileImage, description).let { response ->
+                    api.createStory(it.id, it.name, fileImage, description).let { response ->
                         if (response.isSuccessful) {
                             val body = response.body()
                             val data = body?.data
@@ -55,4 +56,24 @@ class StoryRepositoryImpl(
         }
 
     }
+
+    override fun getAllStories(): Flow<Result<List<Story>>> = flow {
+        emit(Result.Loading)
+        try {
+            api.allStories().let {
+                if (it.isSuccessful) {
+                    val body = it.body()!!
+                    val data = body.data
+                    emit(Result.Success(data))
+                } else {
+                    val error = Gson().fromJson(it.errorBody()!!.charStream(), ErrorResponse::class.java)
+                    emit(Result.Error(error.message))
+                }
+            }
+        } catch (e: Exception) {
+            Log.d("StoryRepo-AllStories", "Excep: $e")
+            emit(Result.Error(e.message ?: "Terjadi Kesalahan pada get all stories"))
+        }
+    }
+
 }

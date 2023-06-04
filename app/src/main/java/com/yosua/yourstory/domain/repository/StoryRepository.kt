@@ -1,5 +1,6 @@
 package com.yosua.yourstory.domain.repository
 
+import com.yosua.yourstory.data.remote.response.AllStoriesResponse
 import com.yosua.yourstory.data.remote.response.StoryResponse
 import com.yosua.yourstory.domain.model.Story
 import com.yosua.yourstory.utils.Result
@@ -12,6 +13,8 @@ import okhttp3.RequestBody
  */
 interface StoryRepository {
 
-    fun createStory(fileImage: MultipartBody.Part, description: RequestBody) : Flow<Result<String>>
+    fun createStory(fileImage: MultipartBody.Part?, description: RequestBody) : Flow<Result<String>>
+
+    fun getAllStories() : Flow<Result<List<Story>>>
 
 }

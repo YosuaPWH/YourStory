@@ -1,35 +1,19 @@
 package com.yosua.yourstory.presentation.home
 
-import android.content.ContentResolver
-import android.content.Context
-import android.graphics.BitmapFactory
-import android.net.Uri
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.os.Environment
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import com.yosua.yourstory.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.yosua.yourstory.databinding.FragmentHomeBinding
-import com.yosua.yourstory.utils.Util.intoMultipartBody
+import com.yosua.yourstory.domain.model.Story
+import com.yosua.yourstory.utils.Result
 import dagger.hilt.android.AndroidEntryPoint
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -37,7 +21,8 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val homeViewModel: HomeViewModel by viewModels()
-    private var getFile: File? = null
+
+    private val listStory: ArrayList<Story> = arrayListOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,6 +36,32 @@ class HomeFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.rvStory.setHasFixedSize(true)
+        binding.rvStory.layoutManager = LinearLayoutManager(context)
+
+        homeViewModel.getAllStories().observe(viewLifecycleOwner) {
+            when (it) {
+                is Result.Success -> {
+                    listStory.clear()
+                    listStory.addAll(it.data)
+                    binding.rvStory.adapter = StoryAdapter(listStory)
+                }
+
+                is Result.Loading -> {
+
+                }
+
+                is Result.Error -> {
+                    Log.e("HomeFragment", "Error: ${it.error}")
+                    Toast.makeText(requireContext(), "Terjadi kesalahan saat meload data", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
 
